@@ -3,7 +3,8 @@ import time
 import pandas as pd
 from ingestor import fetch_news
 from scorer import score_article
-from store import init_db, save_articles
+from monitor import run_drift_report
+from store import init_db, save_articles, load_articles
 
 def run_pipeline():
 
@@ -24,6 +25,14 @@ def run_pipeline():
     print("Saving to database: ")
     save_articles(df)
 
+    reference_df = load_articles(reference_only = True)
+    current_df = load_articles(reference_only = False)
+    current_df = current_df[current_df["is_reference"] == 0]
+
+    report_path = "reports/drift_report.html"
+    run_drift_report(reference_df, current_df, report_path)
+    print ("Drift report saved.")
+
     print("Pipeline run complete.")
 
 
@@ -35,3 +44,5 @@ schedule.every(1).hours.do(run_pipeline)
 while True:
     schedule.run_pending()
     time.sleep(60)
+
+
