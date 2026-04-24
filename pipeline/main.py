@@ -11,6 +11,10 @@ def run_pipeline():
     print('News being fetched: ')
     df = fetch_news()
 
+    if df.empty:
+        print("No articles fetched. Skipping the run.")
+        return
+
     print(f"Scoring {len(df)} articles: ")
     # df["vader_compound"] = df["text"].apply(lambda x: score_article(x)["vader_compound"])
     # df["vader_positive"] = df["text"].apply(lambda x: score_article(x)["vader_positive"])
@@ -30,8 +34,11 @@ def run_pipeline():
     current_df = current_df[current_df["is_reference"] == 0]
 
     report_path = "reports/drift_report.html"
-    run_drift_report(reference_df, current_df, report_path)
-    print ("Drift report saved.")
+    if reference_df.empty:
+        print("No reference data yet. Skipping drift report.")
+    else:
+        run_drift_report(reference_df, current_df, report_path)
+        print ("Drift report saved.")
 
     print("Pipeline run complete.")
 

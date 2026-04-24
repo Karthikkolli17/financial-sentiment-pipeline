@@ -20,7 +20,9 @@ def run_drift_report(reference_df, current_df, report_path):
     columnMapping = ColumnMapping(numerical_features = SENTIMENT_COLUMNS)
 
     report = Report(metrics = [DataDriftPreset()])
-    report.run(reference_data = reference_df, current_data = current_df, column_mapping = columnMapping)
+    ref = reference_df[SENTIMENT_COLUMNS].dropna()                                                        
+    cur = current_df[SENTIMENT_COLUMNS].dropna()                                                          
+    report.run(reference_data=ref, current_data=cur, column_mapping=columnMapping)
 
     report.save_html(report_path)
     return report.as_dict()

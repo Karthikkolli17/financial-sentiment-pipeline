@@ -12,7 +12,6 @@ services:
     volumes:
       - pipeline_data:/app/data      # SQLite database
       - reports:/app/reports         # Evidently HTML reports
-      - ./pipeline:/app              # live code reload during development
     depends_on:
       mlflow:
         condition: service_healthy
@@ -35,11 +34,11 @@ services:
                --backend-store-uri sqlite:///mlflow/mlflow.db
                --default-artifact-root /mlflow/artifacts"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+        test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+        interval: 10s
+        timeout: 5s
+        retries: 5
+        start_period: 40s
 
   # ── Service 3: Streamlit Dashboard ────────────────────────────────────────
   # Read-only UI: shows live scores, drift alerts, MLflow run history
@@ -54,7 +53,6 @@ services:
     volumes:
       - pipeline_data:/app/data      # reads the same SQLite DB as pipeline
       - reports:/app/reports         # reads Evidently reports
-      - ./dashboard:/app             # live code reload during development
     depends_on:
       mlflow:
         condition: service_healthy
