@@ -22,7 +22,7 @@ def fetch_news():
                     "date":         str(date.today()),
                     "stock_symbol": symbol,
                     "title":        entry.get("title", ""),
-                    "text":         entry.get("summary", ""),
+                    "text":         entry.get("summary", "") or entry.get("title", ""),
                     }
                 )
         except Exception as e:
