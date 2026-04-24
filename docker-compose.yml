@@ -1,0 +1,68 @@
+version: "3.8"
+
+services:
+
+  # ── Service 1: Pipeline ────────────────────────────────────────────────────
+  # Runs on a schedule: fetches news, scores sentiment, checks drift, logs to MLflow
+  pipeline:
+    build: ./pipeline
+    env_file: .env
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      - pipeline_data:/app/data      # SQLite database
+      - reports:/app/reports         # Evidently HTML reports
+      - ./pipeline:/app              # live code reload during development
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ── Service 2: MLflow Tracking Server ─────────────────────────────────────
+  # Stores experiment runs, metrics, and artifacts (Evidently reports)
+  # UI accessible at http://localhost:5001
+  mlflow:
+    image: python:3.11-slim
+    ports:
+      - "5001:5000"
+    volumes:
+      - mlflow_data:/mlflow
+    command: >
+      bash -c "pip install mlflow --quiet &&
+               mlflow server
+               --host 0.0.0.0
+               --port 5000
+               --backend-store-uri sqlite:///mlflow/mlflow.db
+               --default-artifact-root /mlflow/artifacts"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Service 3: Streamlit Dashboard ────────────────────────────────────────
+  # Read-only UI: shows live scores, drift alerts, MLflow run history
+  # Accessible at http://localhost:8501
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "8501:8501"
+    env_file: .env
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+    volumes:
+      - pipeline_data:/app/data      # reads the same SQLite DB as pipeline
+      - reports:/app/reports         # reads Evidently reports
+      - ./dashboard:/app             # live code reload during development
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    restart: unless-stopped
+
+# ── Shared Volumes ─────────────────────────────────────────────────────────
+# Named volumes persist data across container restarts
+volumes:
+  pipeline_data:   # SQLite DB with reference + live scored articles
+  mlflow_data:     # MLflow backend DB + artifacts
+  reports:         # Evidently HTML drift reports
