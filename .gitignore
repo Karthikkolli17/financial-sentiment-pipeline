@@ -5,3 +5,7 @@ __pycache__/
 reports/
 *.db
 .DS_Store
+data/*.csv
+data/*.parquet
+pipeline/data/
+pipeline/*.csv

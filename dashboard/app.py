@@ -1,4 +1,5 @@
 import streamlit as st
+import streamlit.components.v1 as components
 import pandas as pd
 import sqlite3
 import plotly.express as px
@@ -38,6 +39,6 @@ report_path = Path("reports/drift_report.html")
 
 if report_path.exists():
     with open(report_path, "r") as f:
-        st.components.v1.html(f.read(), height = 800, scrolling = True)
+        components.html(f.read(), height = 800, scrolling = True)
 else:
     st.info("No drift report yet. Waiting for pipeline to run.")
