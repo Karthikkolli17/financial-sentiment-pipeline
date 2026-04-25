@@ -1,8 +1,18 @@
+import os
 import streamlit as st
 import pandas as pd
-import sqlite3
 import plotly.express as px
 from pathlib import Path
+from sqlalchemy import create_engine
+
+
+def _get_engine():
+    url = os.environ.get("DATABASE_URL")
+    if url:
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql://", 1)
+        return create_engine(url), True
+    return None, False
 
 st.set_page_config(
     page_title="Financial Sentiment Monitor",
@@ -348,20 +358,24 @@ def empty_live_frame():
 
 @st.cache_data(ttl=300)
 def load_live(db_path):
-    path = Path(db_path)
-    if not path.exists():
-        return empty_live_frame()
+    engine, using_postgres = _get_engine()
 
     try:
-        with sqlite3.connect(path) as conn:
-            has_articles = conn.execute(
-                "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'articles'"
-            ).fetchone()
-            if not has_articles:
+        if using_postgres:
+            df = pd.read_sql("SELECT * FROM articles WHERE is_reference = 0", engine)
+        else:
+            import sqlite3
+            path = Path(db_path)
+            if not path.exists():
                 return empty_live_frame()
-
-            df = pd.read_sql("SELECT * FROM articles WHERE is_reference = 0", conn)
-    except sqlite3.Error as exc:
+            with sqlite3.connect(path) as conn:
+                has_articles = conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'articles'"
+                ).fetchone()
+                if not has_articles:
+                    return empty_live_frame()
+                df = pd.read_sql("SELECT * FROM articles WHERE is_reference = 0", conn)
+    except Exception as exc:
         st.error(f"Could not read the pipeline database: {exc}")
         return empty_live_frame()
 
