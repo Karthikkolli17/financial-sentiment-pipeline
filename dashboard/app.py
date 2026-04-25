@@ -30,10 +30,11 @@ TEXT_4    = "#94A3B8"
 
 st.markdown(f"""
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap');
 
   :root {{
     --font-ui: 'Inter';
+    --font-mono: 'JetBrains Mono';
     --fs-body: 14px;
     --fs-display: 24px;
   }}
@@ -95,11 +96,11 @@ st.markdown(f"""
   h1, h2, h3, h4, p {{ color: {TEXT_1}; }}
 
   .eyebrow {{
-    font-family: var(--font-ui);
+    font-family: var(--font-mono);
     font-size: var(--fs-body);
     font-weight: 600;
-    letter-spacing: 0;
-    text-transform: none;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     color: {ACCENT};
     margin-bottom: 0.75rem;
   }}
@@ -149,10 +150,10 @@ st.markdown(f"""
     background: {BG_CARD};
     border: 1px solid {BORDER};
     border-radius: 8px;
-    padding: 1rem;
+    padding: 1.1rem;
   }}
   .pipe-num {{
-    font-family: var(--font-ui);
+    font-family: var(--font-mono);
     font-size: var(--fs-body);
     font-weight: 600;
     color: {ACCENT};
@@ -223,11 +224,11 @@ st.markdown(f"""
     color: {TEXT_2};
   }}
   .insight-label {{
-    font-family: var(--font-ui);
+    font-family: var(--font-mono);
     font-size: var(--fs-body);
     font-weight: 600;
-    letter-spacing: 0;
-    text-transform: none;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
     color: {TEXT_4};
     margin-bottom: 0.75rem;
   }}
@@ -245,7 +246,7 @@ st.markdown(f"""
   }}
   .insight-body strong {{ color: {TEXT_1}; font-weight: 600; }}
   .insight-stat {{
-    font-family: var(--font-ui);
+    font-family: var(--font-mono);
     font-size: var(--fs-body);
     color: {ACCENT};
     background: {ACCENT_LT};
@@ -385,8 +386,8 @@ if "selected_stocks" not in st.session_state:
 
 with st.sidebar:
     st.markdown(
-        f"<p style='font-size:var(--fs-body);font-weight:600;"
-        f"letter-spacing:0;color:{TEXT_4};margin-bottom:0.4rem'>Filters</p>",
+        f"<p style='font-family:var(--font-mono);font-size:var(--fs-body);font-weight:600;"
+        f"letter-spacing:0.02em;text-transform:uppercase;color:{TEXT_4};margin-bottom:0.4rem'>Filters</p>",
         unsafe_allow_html=True
     )
     st.markdown(

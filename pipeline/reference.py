@@ -1,8 +1,16 @@
+import urllib.request
+from pathlib import Path
 import pandas as pd
 from scorer import score_article
 from store import init_db, save_articles
 
 CSV_PATH = "/app/merged_stock_news_prices_2019_2024.csv"
+HF_URL = "https://huggingface.co/datasets/karthikkolli17/financial-news-sentiment/resolve/main/merged_stock_news_prices_2019_2024.csv"
+
+if not Path(CSV_PATH).exists():
+    print("Downloading reference CSV from Hugging Face...")
+    urllib.request.urlretrieve(HF_URL, CSV_PATH)
+    print("Download complete.")
 
 print("Loading historical data...")                                                        
 df = pd.read_csv(CSV_PATH)                                                                 
