@@ -27,14 +27,14 @@ def score_article(text):
     fb = {p["label"]: p["score"] for p in fb_pred}
 
     return {
-        "vader_compound":       vader_scores["compound"],
-        "vader_positive":       vader_scores["pos"],
-        "vader_neutral":        vader_scores["neu"],
-        "vader_negative":       vader_scores["neg"],
-        "textblob_polarity":    blob.sentiment.polarity,
+        "vader_compound":        vader_scores["compound"],
+        "vader_positive":        vader_scores["pos"],
+        "vader_neutral":         vader_scores["neu"],
+        "vader_negative":        vader_scores["neg"],
+        "textblob_polarity":     blob.sentiment.polarity,
         "textblob_subjectivity": blob.sentiment.subjectivity,
-        "finbert_positive":     fb.get("positive", 0),
-        "finbert_negative":     fb.get("negative", 0),
-        "finbert_neutral":      fb.get("neutral", 0),
-        "finbert_compound":     fb.get("positive", 0) - fb.get("negative", 0),
+        "finbert_positive":      fb.get("positive", 0),
+        "finbert_negative":      fb.get("negative", 0),
+        "finbert_neutral":       fb.get("neutral", 0),
+        "finbert_compound":      fb.get("positive", 0) - fb.get("negative", 0),
     }
