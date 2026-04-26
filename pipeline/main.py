@@ -58,6 +58,10 @@ def run_pipeline():
 
 
 init_db()
+
+# Seed reference data on first run — skips automatically if already loaded
+import reference  # noqa: F401
+
 run_pipeline()
 
 schedule.every(1).hours.do(run_pipeline)
