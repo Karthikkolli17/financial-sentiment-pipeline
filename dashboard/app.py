@@ -122,7 +122,6 @@ st.markdown(f"""
     font-size: var(--fs-body);
     color: {TEXT_2};
     line-height: 1.65;
-    max-width: 720px;
     margin: 0;
   }}
 
@@ -137,7 +136,6 @@ st.markdown(f"""
     color: {TEXT_3};
     line-height: 1.55;
     margin: 0 0 1rem 0;
-    max-width: 720px;
   }}
   .sec-wrap {{ margin-top: 2rem; }}
 
@@ -265,21 +263,25 @@ st.markdown(f"""
   /* ── Tabs ── */
   div[data-baseweb="tab-list"] {{
     border-bottom: 1px solid {BORDER} !important;
-    gap: 0 !important;
+    gap: 0.5rem !important;
     margin-bottom: 1rem !important;
   }}
   div[data-baseweb="tab"] {{
     background: transparent !important;
     color: {TEXT_3} !important;
     font-weight: 500 !important;
-    padding: 0.6rem 1rem !important;
+    padding: 0.6rem 1.25rem !important;
     border: none !important;
     border-bottom: 2px solid transparent !important;
     border-radius: 0 !important;
+    margin-right: 0.25rem !important;
   }}
   div[data-baseweb="tab"][aria-selected="true"] {{
     color: {ACCENT} !important;
     border-bottom: 2px solid {ACCENT} !important;
+  }}
+  div[data-baseweb="tab"] > div {{
+    padding: 0 !important;
   }}
 
   /* ── Dataframe ── */
