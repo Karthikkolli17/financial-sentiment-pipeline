@@ -49,7 +49,39 @@ def init_db():
                 conn.execute(text(f"ALTER TABLE articles ADD COLUMN {col} REAL"))
             except Exception:
                 pass  # column already exists
+        conn.execute(text(f"""
+            CREATE TABLE IF NOT EXISTS drift_reports (
+                {id_col.replace('id ', 'report_id ')},
+                created_at  TEXT,
+                html        TEXT
+            )
+        """))
         conn.commit()
+
+
+def save_drift_report(html_content):
+    from datetime import datetime
+    engine = _get_engine()
+    with engine.connect() as conn:
+        conn.execute(
+            text("INSERT INTO drift_reports (created_at, html) VALUES (:ts, :html)"),
+            {"ts": datetime.utcnow().isoformat(), "html": html_content},
+        )
+        conn.commit()
+
+
+def load_latest_drift_report():
+    engine = _get_engine()
+    try:
+        row = pd.read_sql(
+            "SELECT html, created_at FROM drift_reports ORDER BY report_id DESC LIMIT 1",
+            engine,
+        )
+        if row.empty:
+            return None, None
+        return row["html"].iloc[0], row["created_at"].iloc[0]
+    except Exception:
+        return None, None
 
 
 def save_articles(df, is_reference=False):

@@ -358,6 +358,23 @@ REPORT_PATH = first_existing_path([
 ])
 
 
+@st.cache_data(ttl=300)
+def load_drift_report_from_db():
+    engine, using_postgres = _get_engine()
+    if not using_postgres:
+        return None, None
+    try:
+        row = pd.read_sql(
+            "SELECT html, created_at FROM drift_reports ORDER BY report_id DESC LIMIT 1",
+            engine,
+        )
+        if row.empty:
+            return None, None
+        return row["html"].iloc[0], row["created_at"].iloc[0]
+    except Exception:
+        return None, None
+
+
 def empty_live_frame():
     return pd.DataFrame(columns=DISPLAY_COLUMNS)
 
@@ -527,6 +544,9 @@ st.markdown(f"""
 
 # ── KPI ────────────────────────────────────────────────────────────────────────
 avg_vader = df["vader_compound"].mean()
+
+# Prefer DB-stored report (works on Railway); fall back to local file
+db_report_html, db_report_ts = load_drift_report_from_db()
 report_path = REPORT_PATH
 
 def tone_for(v):
@@ -536,8 +556,9 @@ def tone_for(v):
     return AMBER, AMBER_LT, "Neutral"
 
 vader_color, vader_bg, vader_label = tone_for(avg_vader)
-drift_label = "Available" if report_path.exists() else "Pending"
-drift_color = GREEN if report_path.exists() else AMBER
+has_report = db_report_html is not None or report_path.exists()
+drift_label = "Available" if has_report else "Pending"
+drift_color = GREEN if has_report else AMBER
 
 st.markdown(f"""
 <div class="sec-wrap">
@@ -747,7 +768,8 @@ st.markdown(f"""
 
 monitored_count = len([c for c in SENTIMENT_COLUMNS if df[c].notna().any()])
 
-if report_path.exists():
+if has_report:
+    report_ts = db_report_ts or "—"
     st.markdown(f"""
     <div class="drift-grid">
       <div class="kpi">
@@ -781,10 +803,17 @@ if report_path.exists():
       </div>
     </div>
     """, unsafe_allow_html=True)
-    with open(report_path, "rb") as f:
+
+    if db_report_html is not None:
         st.download_button(
             "Download full Evidently report",
-            data=f, file_name="drift_report.html", mime="text/html",
+            data=db_report_html.encode(), file_name="drift_report.html", mime="text/html",
         )
+    elif report_path.exists():
+        with open(report_path, "rb") as f:
+            st.download_button(
+                "Download full Evidently report",
+                data=f, file_name="drift_report.html", mime="text/html",
+            )
 else:
     st.info("No drift report yet. It will be generated automatically on the next pipeline run.")

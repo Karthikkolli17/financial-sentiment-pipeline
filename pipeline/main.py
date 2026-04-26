@@ -4,7 +4,7 @@ import pandas as pd
 from ingestor import fetch_news
 from scorer import score_article
 from monitor import run_drift_report
-from store import init_db, save_articles, load_articles
+from store import init_db, save_articles, load_articles, save_drift_report
 
 def run_pipeline():
 
@@ -42,12 +42,17 @@ def run_pipeline():
     current_df = load_articles(reference_only = False)
     current_df = current_df[current_df["is_reference"] == 0]
 
-    report_path = "reports/drift_report.html"
     if reference_df.empty:
         print("No reference data yet. Skipping drift report.")
     else:
-        run_drift_report(reference_df, current_df, report_path)
-        print ("Drift report saved.")
+        import tempfile, os
+        with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as tmp:
+            tmp_path = tmp.name
+        run_drift_report(reference_df, current_df, tmp_path)
+        with open(tmp_path) as f:
+            save_drift_report(f.read())
+        os.unlink(tmp_path)
+        print("Drift report saved to database.")
 
     print("Pipeline run complete.")
 
