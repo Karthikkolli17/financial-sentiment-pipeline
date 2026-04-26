@@ -60,12 +60,12 @@ def init_db():
 
 
 def save_drift_report(html_content):
-    from datetime import datetime
+    from datetime import datetime, timezone
     engine = _get_engine()
     with engine.connect() as conn:
         conn.execute(
             text("INSERT INTO drift_reports (created_at, html) VALUES (:ts, :html)"),
-            {"ts": datetime.utcnow().isoformat(), "html": html_content},
+            {"ts": datetime.now(timezone.utc).isoformat(), "html": html_content},
         )
         conn.commit()
 

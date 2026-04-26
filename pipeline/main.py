@@ -14,20 +14,16 @@ def run_pipeline():
     if df.empty:
         print("No articles fetched. Skipping the run.")
         return
-
-    print(f"Scoring {len(df)} articles: ")
+    
     # df["vader_compound"] = df["text"].apply(lambda x: score_article(x)["vader_compound"])
     # df["vader_positive"] = df["text"].apply(lambda x: score_article(x)["vader_positive"])
     # df["vader_neutral"] = df["text"].apply(lambda x: score_article(x)["vader_neutral"])
     # df["vader_negative"] = df["text"].apply(lambda x: score_article(x)["vader_negative"])
     # df["textblob_polarity"] = df["text"].apply(lambda x: score_article(x)["textblob_polarity"])
     # df["textblob_subjectivity"] = df["text"].apply(lambda x: score_article(x)["textblob_subjectivity"])
-
-    scores = df["text"].apply(lambda x: pd.Series(score_article(x)))
-    df = pd.concat([df, scores], axis=1)
-
-    # Drop articles already in the DB (same date + stock + title)
-    existing = load_articles(reference_only = False)
+    
+    # Deduplicate before scoring — no point scoring articles already in the DB
+    existing = load_articles(reference_only=False)
     if not existing.empty:
         seen = set(zip(existing["date"], existing["stock_symbol"], existing["title"]))
         df = df[~df.apply(lambda r: (r["date"], r["stock_symbol"], r["title"]) in seen, axis=1)]
@@ -35,7 +31,11 @@ def run_pipeline():
         print("No new articles since last run.")
         return
 
-    print(f"Saving {len(df)} new articles to database: ")
+    print(f"Scoring {len(df)} new articles:")
+    scores = df["text"].apply(lambda x: pd.Series(score_article(x)))
+    df = pd.concat([df, scores], axis=1)
+
+    print(f"Saving {len(df)} new articles to database:")
     save_articles(df)
 
     reference_df = load_articles(reference_only = True)
