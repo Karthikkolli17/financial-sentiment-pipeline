@@ -48,7 +48,7 @@ Tested against next-day returns to avoid look-ahead bias — same-day returns ar
 
 No meaningful signal across any of the three models. The core reason: the dataset has date-level granularity only — no publish timestamps. Without knowing whether an article dropped before or after market hours, the lag between news and price reaction is too noisy to measure cleanly. By the next day's close, any reaction is already fully priced in. This is consistent with the Efficient Market Hypothesis.
 
-> *[Screenshot — ROC curves]*
+<img width="690" height="590" alt="image" src="https://github.com/user-attachments/assets/4bc26473-18e7-4acb-91e8-7d5e1b2eb823" />
 
 > *[Screenshot — Feature importance]*
 
