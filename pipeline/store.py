@@ -43,12 +43,20 @@ def init_db():
                 is_reference          INTEGER DEFAULT 0
             )
         """))
-        # Migrate existing tables that predate FinBERT columns
+        # Migrate existing tables that predate FinBERT columns.
+        # Use savepoints on PostgreSQL so a failed ALTER (column exists) doesn't
+        # abort the whole transaction — PostgreSQL marks the transaction as failed
+        # on any error, unlike SQLite which handles each statement independently.
         for col in ("finbert_compound", "finbert_positive", "finbert_negative", "finbert_neutral"):
             try:
+                if dialect == "postgresql":
+                    conn.execute(text("SAVEPOINT add_col"))
                 conn.execute(text(f"ALTER TABLE articles ADD COLUMN {col} REAL"))
+                if dialect == "postgresql":
+                    conn.execute(text("RELEASE SAVEPOINT add_col"))
             except Exception:
-                pass  # column already exists
+                if dialect == "postgresql":
+                    conn.execute(text("ROLLBACK TO SAVEPOINT add_col"))
         conn.execute(text(f"""
             CREATE TABLE IF NOT EXISTS drift_reports (
                 {id_col.replace('id ', 'report_id ')},
