@@ -27,19 +27,19 @@ def run_pipeline():
     if not existing.empty:
         seen = set(zip(existing["date"], existing["stock_symbol"], existing["title"]))
         df = df[~df.apply(lambda r: (r["date"], r["stock_symbol"], r["title"]) in seen, axis=1)]
-    if df.empty:
+
+    if not df.empty:
+        print(f"Scoring {len(df)} new articles:")
+        scores = df["text"].apply(lambda x: pd.Series(score_article(x)))
+        df = pd.concat([df, scores], axis=1)
+        print(f"Saving {len(df)} new articles to database:")
+        save_articles(df)
+    else:
         print("No new articles since last run.")
-        return
 
-    print(f"Scoring {len(df)} new articles:")
-    scores = df["text"].apply(lambda x: pd.Series(score_article(x)))
-    df = pd.concat([df, scores], axis=1)
-
-    print(f"Saving {len(df)} new articles to database:")
-    save_articles(df)
-
-    reference_df = load_articles(reference_only = True)
-    current_df = load_articles(reference_only = False)
+    # Always run drift report so dashboard stays up to date
+    reference_df = load_articles(reference_only=True)
+    current_df = load_articles(reference_only=False)
     current_df = current_df[current_df["is_reference"] == 0]
 
     if reference_df.empty:
