@@ -263,7 +263,7 @@ st.markdown(f"""
   /* ── Tabs ── */
   div[data-baseweb="tab-list"] {{
     border-bottom: 1px solid {BORDER} !important;
-    gap: 0.5rem !important;
+    gap: 2rem !important;
     margin-bottom: 1rem !important;
   }}
   div[data-baseweb="tab"] {{
@@ -274,7 +274,6 @@ st.markdown(f"""
     border: none !important;
     border-bottom: 2px solid transparent !important;
     border-radius: 0 !important;
-    margin-right: 0.25rem !important;
   }}
   div[data-baseweb="tab"][aria-selected="true"] {{
     color: {ACCENT} !important;
@@ -327,12 +326,10 @@ st.markdown(f"""
 APP_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = APP_DIR.parent
 
-LEXICON_COLUMNS = [
+SENTIMENT_COLUMNS = [
     "vader_compound", "vader_positive", "vader_neutral", "vader_negative",
     "textblob_polarity", "textblob_subjectivity",
 ]
-FINBERT_COLUMNS = ["finbert_compound", "finbert_positive", "finbert_negative"]
-SENTIMENT_COLUMNS = LEXICON_COLUMNS + FINBERT_COLUMNS
 
 DISPLAY_COLUMNS = ["date", "stock_symbol", "title", "text", *SENTIMENT_COLUMNS, "is_reference"]
 
@@ -491,8 +488,6 @@ if df.empty:
     st.warning("No articles match the current filters.")
     st.stop()
 
-# Detect whether FinBERT scores are available in this dataset
-has_finbert = df["finbert_compound"].notna().any()
 
 # ── HERO ───────────────────────────────────────────────────────────────────────
 st.markdown(f"""
@@ -505,8 +500,8 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # ── PIPELINE ───────────────────────────────────────────────────────────────────
-score_desc = "VADER + TextBlob + FinBERT" if has_finbert else "VADER + TextBlob"
-feature_count = 10 if has_finbert else 6
+score_desc = "VADER + TextBlob"
+feature_count = 6
 
 st.markdown(f"""
 <div class="sec-wrap">
@@ -678,13 +673,13 @@ st.markdown(f"""
 <div class="sec-wrap">
   <h2 class="sec-title">Sentiment by stock</h2>
   <p class="sec-sub">
-    Three models, three perspectives. VADER tracks emotional intensity; TextBlob measures general tone polarity;
-    FinBERT applies a transformer trained specifically on financial text. All range from −1 (negative) to +1 (positive).
+    Two models, two perspectives. VADER tracks emotional intensity; TextBlob measures general tone polarity.
+    Both range from −1 (negative) to +1 (positive).
   </p>
 </div>
 """, unsafe_allow_html=True)
 
-tab_vader, tab_textblob, tab_finbert = st.tabs(["VADER", "TextBlob", "FinBERT"])
+tab_vader, tab_textblob = st.tabs(["VADER", "TextBlob"])
 
 with tab_vader:
     render_sentiment_view(
@@ -712,19 +707,6 @@ with tab_textblob:
         chart_type="bar",
     )
 
-with tab_finbert:
-    render_sentiment_view(
-        score_col="finbert_compound",
-        score_label="FinBERT compound",
-        model_name="FinBERT",
-        model_explainer=(
-            "FinBERT assigns each article positive, negative, and neutral probabilities. "
-            "Compound = positive − negative. Because it was trained specifically on financial text, "
-            "it is more sensitive to domain-specific language than VADER or TextBlob."
-        ),
-        chart_type="bar",
-    )
-
 # ── TABLE ──────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="sec-wrap">
@@ -735,9 +717,6 @@ st.markdown(f"""
 
 table_cols = ["date", "stock_symbol", "title", "vader_compound", "textblob_polarity"]
 table_labels = ["Date", "Stock", "Title", "VADER", "TextBlob"]
-if has_finbert:
-    table_cols.append("finbert_compound")
-    table_labels.append("FinBERT")
 
 display_df = (
     df[table_cols].copy()
@@ -749,8 +728,6 @@ column_config = {
     "VADER":    st.column_config.NumberColumn(format="%.3f"),
     "TextBlob": st.column_config.NumberColumn(format="%.3f"),
 }
-if has_finbert:
-    column_config["FinBERT"] = st.column_config.NumberColumn(format="%.3f")
 
 st.dataframe(display_df, use_container_width=True, hide_index=True, height=380, column_config=column_config)
 
