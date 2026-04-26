@@ -50,7 +50,9 @@ No meaningful signal across any of the three models. The core reason: the datase
 
 <img width="690" height="590" alt="image" src="https://github.com/user-attachments/assets/4bc26473-18e7-4acb-91e8-7d5e1b2eb823" />
 
-> *[Screenshot — Feature importance]*
+<img width="789" height="390" alt="image" src="https://github.com/user-attachments/assets/d10c2534-2742-40fb-b343-8be98afa8102" />
+
+<img width="782" height="690" alt="image" src="https://github.com/user-attachments/assets/a6f014bf-4fa0-49e6-97a0-11ffe9bbd346" />
 
 ---
 
@@ -67,11 +69,7 @@ Every hour:
 
 The drift monitoring is the direct connection to the research. The notebook defines what "normal" sentiment looks like historically. The pipeline flags when live data stops looking normal.
 
-> *[Screenshot — Dashboard overview]*
-
-> *[Screenshot — Per-stock sentiment charts]*
-
-> *[Screenshot — Drift report]*
+<img width="1680" height="940" alt="Screenshot 2026-04-25 at 8 30 22 PM" src="https://github.com/user-attachments/assets/08368855-7bd2-4dd4-8f85-7ed36108596d" />
 
 ---
 
