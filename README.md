@@ -90,7 +90,15 @@ The drift monitoring is the direct connection to the research. The notebook defi
 
 ## Dataset
 
-48,515 articles + stock price data, hosted on Hugging Face:
+**Source:** [FNSPID](https://huggingface.co/datasets/Zihan1004/FNSPID) — 29.6GB, 10M+ financial news articles.
+
+**Why we filtered it down:**
+- Full dataset was computationally infeasible on local hardware
+- Pre-COVID data (pre-2020) introduces heavy downward bias — almost all stocks trending together, which adds noise rather than signal
+- Settled on post-COVID (2020–2024) for a cleaner, more stable market period
+- Even that slice was large, so restricted to the **top 10 stocks by article coverage** across the 5-year window: AMD, BRK, CVX, DIS, GOOG, GS, INTC, NVDA, WMT, XOM
+
+Final dataset: **48,515 articles** — large enough for statistical validity, small enough to run locally. Hosted on Hugging Face:
 [karthikkolli17/financial-news-sentiment](https://huggingface.co/datasets/karthikkolli17/financial-news-sentiment)
 
 ---
