@@ -26,7 +26,16 @@ def run_pipeline():
     scores = df["text"].apply(lambda x: pd.Series(score_article(x)))
     df = pd.concat([df, scores], axis=1)
 
-    print("Saving to database: ")
+    # Drop articles already in the DB (same date + stock + title)
+    existing = load_articles(reference_only = False)
+    if not existing.empty:
+        seen = set(zip(existing["date"], existing["stock_symbol"], existing["title"]))
+        df = df[~df.apply(lambda r: (r["date"], r["stock_symbol"], r["title"]) in seen, axis=1)]
+    if df.empty:
+        print("No new articles since last run.")
+        return
+
+    print(f"Saving {len(df)} new articles to database: ")
     save_articles(df)
 
     reference_df = load_articles(reference_only = True)
