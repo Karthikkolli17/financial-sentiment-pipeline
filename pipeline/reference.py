@@ -32,8 +32,9 @@ df = df.rename(columns={
 print("Saving to database...")                                                             
 init_db()       
 save_articles(df[["date", "stock_symbol", "title", "text",
-                     "vader_compound", "vader_positive", "vader_neutral",                    
-                     "vader_negative", "textblob_polarity", "textblob_subjectivity"]],
+                     "vader_compound", "vader_positive", "vader_neutral",
+                     "vader_negative", "textblob_polarity", "textblob_subjectivity",
+                     "finbert_compound", "finbert_positive", "finbert_negative", "finbert_neutral"]],
                 is_reference=True)                                                           
                                                                                              
 print("Done. Reference data loaded.") 

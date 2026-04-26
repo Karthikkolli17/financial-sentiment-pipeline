@@ -10,6 +10,9 @@ SENTIMENT_COLUMNS = [
     "vader_negative",
     "textblob_polarity",
     "textblob_subjectivity",
+    "finbert_compound",
+    "finbert_positive",
+    "finbert_negative",
 ]
 
 # reference_df = old historical articles

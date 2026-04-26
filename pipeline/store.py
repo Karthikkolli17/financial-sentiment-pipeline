@@ -36,9 +36,19 @@ def init_db():
                 vader_negative        REAL,
                 textblob_polarity     REAL,
                 textblob_subjectivity REAL,
+                finbert_compound      REAL,
+                finbert_positive      REAL,
+                finbert_negative      REAL,
+                finbert_neutral       REAL,
                 is_reference          INTEGER DEFAULT 0
             )
         """))
+        # Migrate existing tables that predate FinBERT columns
+        for col in ("finbert_compound", "finbert_positive", "finbert_negative", "finbert_neutral"):
+            try:
+                conn.execute(text(f"ALTER TABLE articles ADD COLUMN {col} REAL"))
+            except Exception:
+                pass  # column already exists
         conn.commit()
 
 

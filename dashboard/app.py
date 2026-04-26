@@ -319,6 +319,9 @@ SENTIMENT_COLUMNS = [
     "vader_negative",
     "textblob_polarity",
     "textblob_subjectivity",
+    "finbert_compound",
+    "finbert_positive",
+    "finbert_negative",
 ]
 
 DISPLAY_COLUMNS = [
@@ -492,7 +495,7 @@ st.markdown(f"""
     <div class="pipe-step">
       <div class="pipe-num">02</div>
       <div class="pipe-name">Score</div>
-      <div class="pipe-desc">VADER + TextBlob · 6 features</div>
+      <div class="pipe-desc">VADER + TextBlob + FinBERT · 10 features</div>
     </div>
     <div class="pipe-step">
       <div class="pipe-num">03</div>
@@ -595,8 +598,8 @@ st.markdown(f"""
 <div class="sec-wrap">
   <h2 class="sec-title">How each stock is being covered</h2>
   <p class="sec-sub">
-    Two views, two models. VADER tracks emotional intensity; TextBlob measures general tone polarity.
-    Both range from −1 (negative) to +1 (positive).
+    Three models, three perspectives. VADER tracks emotional intensity; TextBlob measures general tone polarity;
+    FinBERT applies a transformer trained specifically on financial text. All range from −1 (negative) to +1 (positive).
   </p>
 </div>
 """, unsafe_allow_html=True)
@@ -670,6 +673,61 @@ with c4:
     </div>
     """, unsafe_allow_html=True)
 
+# ── CHART 3 : FinBERT ─────────────────────────────────────────────────────────
+fb_by_stock = df.groupby("stock_symbol")["finbert_compound"].mean().sort_values()
+fb_pos_count = (fb_by_stock > 0.05).sum()
+fb_neg_count = (fb_by_stock < -0.05).sum()
+
+st.markdown(f"""
+<div class="sec-wrap">
+  <h2 class="sec-title">FinBERT sentiment by stock</h2>
+  <p class="sec-sub">
+    FinBERT is a BERT model fine-tuned on financial text. Unlike VADER and TextBlob, it understands
+    financial jargon and context. Compound = positive probability − negative probability.
+  </p>
+</div>
+""", unsafe_allow_html=True)
+
+c5, c6 = st.columns([3, 2], gap="large")
+
+with c5:
+    avg_fb_stock = (
+        df.groupby("stock_symbol")["finbert_compound"]
+        .mean().reset_index().sort_values("finbert_compound")
+    )
+    avg_fb_stock["color"] = avg_fb_stock["finbert_compound"].apply(lambda x: GREEN if x >= 0 else RED)
+    fig3 = px.bar(
+        avg_fb_stock, x="stock_symbol", y="finbert_compound",
+        color="color", color_discrete_map="identity",
+        labels={
+            "stock_symbol": "Stock",
+            "finbert_compound": "FinBERT compound",
+        },
+    )
+    fig3.update_layout(**CHART, showlegend=False, height=360)
+    fig3.update_xaxes(title_text="Stock")
+    fig3.update_yaxes(title_text="FinBERT compound")
+    st.plotly_chart(fig3, use_container_width=True)
+
+with c6:
+    fb_most_pos = fb_by_stock.index[-1]
+    fb_most_neg = fb_by_stock.index[0]
+    st.markdown(f"""
+    <div class="insight-card">
+      <div class="insight-label">Reading the chart</div>
+      <div class="insight-head">Average FinBERT compound by stock</div>
+      <div class="insight-body">
+        FinBERT assigns each article a positive, negative, and neutral probability.
+        Compound = positive − negative, ranging from −1 to +1.
+        Because it was trained specifically on financial text, it is more sensitive to
+        domain-specific language than VADER or TextBlob.
+        <br><br>
+        <strong>Most positive:</strong> <span class="insight-stat">{fb_most_pos} · {fb_by_stock[fb_most_pos]:+.3f}</span><br><br>
+        <strong>Most negative:</strong> <span class="insight-stat">{fb_most_neg} · {fb_by_stock[fb_most_neg]:+.3f}</span>
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+
 # ── TABLE ──────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="sec-wrap">
@@ -679,16 +737,17 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 display_df = (
-    df[["date", "stock_symbol", "title", "vader_compound", "textblob_polarity"]]
+    df[["date", "stock_symbol", "title", "vader_compound", "textblob_polarity", "finbert_compound"]]
     .copy().sort_values("date", ascending=False).head(50).reset_index(drop=True)
 )
-display_df.columns = ["Date", "Stock", "Title", "VADER", "TextBlob"]
+display_df.columns = ["Date", "Stock", "Title", "VADER", "TextBlob", "FinBERT"]
 
 st.dataframe(
     display_df, use_container_width=True, hide_index=True, height=380,
     column_config={
-        "VADER":    st.column_config.NumberColumn(format="%.3f"),
+        "VADER":   st.column_config.NumberColumn(format="%.3f"),
         "TextBlob": st.column_config.NumberColumn(format="%.3f"),
+        "FinBERT": st.column_config.NumberColumn(format="%.3f"),
     }
 )
 
