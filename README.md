@@ -48,11 +48,15 @@ Tested against next-day returns to avoid look-ahead bias — same-day returns ar
 
 No meaningful signal across any of the three models. The core reason: the dataset has date-level granularity only — no publish timestamps. Without knowing whether an article dropped before or after market hours, the lag between news and price reaction is too noisy to measure cleanly. By the next day's close, any reaction is already fully priced in. This is consistent with the Efficient Market Hypothesis.
 
-<img width="690" height="590" alt="ROC curves for Logistic Regression (AUC 0.516) and Random Forest (AUC 0.567) — both barely above the random baseline" src="https://github.com/user-attachments/assets/4bc26473-18e7-4acb-91e8-7d5e1b2eb823" />
+<img width="800" alt="ROC curves for Logistic Regression (AUC 0.516) and Random Forest (AUC 0.567) — both barely above the random baseline" src="https://github.com/user-attachments/assets/4bc26473-18e7-4acb-91e8-7d5e1b2eb823" />
 
-<img width="789" height="390" alt="Random Forest feature importance — all 10 sentiment features score roughly equally, suggesting no single model dominates" src="https://github.com/user-attachments/assets/d10c2534-2742-40fb-b343-8be98afa8102" />
+<br><br>
 
-<img width="782" height="690" alt="Correlation matrix of sentiment features vs price metrics — near-zero correlation between all sentiment scores and next-day price change" src="https://github.com/user-attachments/assets/a6f014bf-4fa0-49e6-97a0-11ffe9bbd346" />
+<img width="800" alt="Random Forest feature importance — all 10 sentiment features score roughly equally, suggesting no single model dominates" src="https://github.com/user-attachments/assets/d10c2534-2742-40fb-b343-8be98afa8102" />
+
+<br><br>
+
+<img width="800" alt="Correlation matrix of sentiment features vs price metrics — near-zero correlation between all sentiment scores and next-day price change" src="https://github.com/user-attachments/assets/a6f014bf-4fa0-49e6-97a0-11ffe9bbd346" />
 
 ---
 
@@ -71,13 +75,19 @@ Every hour:
 
 The drift monitoring is the direct connection to the research. The notebook defines what "normal" sentiment looks like historically. The pipeline flags when live data stops looking normal.
 
-<img width="1680" height="1050" alt="Dashboard overview showing pipeline stages, live article count, average VADER score, and drift status" src="https://github.com/user-attachments/assets/0817b938-4561-4af9-88c8-2222c4114759" />
+<img width="800" alt="Pipeline overview showing the five stages: ingest, score, store, monitor, and visualise — with live article count, average VADER score, and drift status" src="https://github.com/user-attachments/assets/c04c05e1-34a2-446b-90f6-4339814b6a0c" />
 
-<img width="1680" height="1050" alt="VADER sentiment by stock — box plot showing score spread and variance across 10 tickers" src="https://github.com/user-attachments/assets/c04c05e1-34a2-446b-90f6-4339814b6a0c" />
+<br><br>
 
-<img width="1680" height="1050" alt="TextBlob sentiment by stock — bar chart showing average polarity per ticker" src="https://github.com/user-attachments/assets/cea34a8a-a07c-4db2-8ea9-32b8ed2a60ab" />
+<img width="800" alt="Latest scored articles table and distribution drift section showing Evidently AI comparison against the 48k historical baseline" src="https://github.com/user-attachments/assets/da1293e6-d53a-44af-8417-2bdea5eaf54c" />
 
-<img width="1680" height="1050" alt="Latest scored articles table and distribution drift section showing Evidently AI comparison against the 48k historical baseline" src="https://github.com/user-attachments/assets/da1293e6-d53a-44af-8417-2bdea5eaf54c" />
+<br><br>
+
+<img width="800" alt="VADER sentiment by stock — box plot showing score spread and variance across 10 tickers" src="https://github.com/user-attachments/assets/0817b938-4561-4af9-88c8-2222c4114759" />
+
+<br><br>
+
+<img width="800" alt="TextBlob sentiment by stock — bar chart showing average polarity per ticker" src="https://github.com/user-attachments/assets/cea34a8a-a07c-4db2-8ea9-32b8ed2a60ab" />
 
 ---
 
