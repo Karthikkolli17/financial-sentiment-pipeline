@@ -27,8 +27,6 @@ Two parts that connect directly: a research notebook that analyses 48k articles,
 
 ## Part 1 — The Research
 
-`notebooks/Analysis.ipynb`
-
 ### Main Dataset
 
 **Source:** [FNSPID](https://huggingface.co/datasets/Zihan1004/FNSPID) — 29.6GB, 10M+ financial news articles.
@@ -39,10 +37,12 @@ Two parts that connect directly: a research notebook that analyses 48k articles,
 - Fixed on post-COVID (2020–2024) for a cleaner, more stable market period.
 - Even that slice was large, so restricted to the **top 10 stocks by article coverage** across the 5-year window: AMD, BRK, CVX, DIS, GOOG, GS, INTC, NVDA, WMT, XOM
 
-Final dataset: **48,515 articles** — large enough for statistical validity, small enough to run locally. Hosted on Hugging Face:
+Final dataset: **48,515 articles**, large enough for statistical validity, small enough to run locally. Hosted on Hugging Face:
 [karthikkolli17/financial-news-sentiment](https://huggingface.co/datasets/karthikkolli17/financial-news-sentiment)
 
-I took 48,000+ financial news articles across 10 stocks (AMD, BRK, CVX, DIS, GOOG, GS, INTC, NVDA, WMT, XOM) from 2020–2024 and tested whether sentiment scores can predict next-day stock returns.
+**Notebook**: `notebooks/Analysis.ipynb`
+
+I took financial news articles across 10 stocks (AMD, BRK, CVX, DIS, GOOG, GS, INTC, NVDA, WMT, XOM) from 2020–2024 and tested whether sentiment scores can predict next-day stock returns.
 
 Three sentiment models, simple to complex:
 - **VADER** — rule-based, optimised for short financial text
