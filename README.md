@@ -40,8 +40,6 @@ Two parts that connect directly: a research notebook that analyses 48k articles,
 Final dataset: **48,515 articles**, large enough for statistical validity, small enough to run locally. Hosted on Hugging Face:
 [karthikkolli17/financial-news-sentiment](https://huggingface.co/datasets/karthikkolli17/financial-news-sentiment)
 
----
-
 **Notebook**: `notebooks/Analysis.ipynb`
 
 I took financial news articles across 10 stocks (AMD, BRK, CVX, DIS, GOOG, GS, INTC, NVDA, WMT, XOM) from 2020–2024 and tested whether sentiment scores can predict next-day stock returns.
@@ -94,15 +92,15 @@ The drift monitoring is the direct connection to the research. The notebook defi
 
 <br><br>
 
-<img width="800" alt="Latest scored articles table and distribution drift section showing Evidently AI comparison against the 48k historical baseline" src="https://github.com/user-attachments/assets/da1293e6-d53a-44af-8417-2bdea5eaf54c" />
-
-<br><br>
-
 <img width="800" alt="VADER sentiment by stock — box plot showing score spread and variance across 10 tickers" src="https://github.com/user-attachments/assets/0817b938-4561-4af9-88c8-2222c4114759" />
 
 <br><br>
 
 <img width="800" alt="TextBlob sentiment by stock — bar chart showing average polarity per ticker" src="https://github.com/user-attachments/assets/cea34a8a-a07c-4db2-8ea9-32b8ed2a60ab" />
+
+<br><br>
+
+<img width="800" alt="Latest scored articles table and distribution drift section showing Evidently AI comparison against the 48k historical baseline" src="https://github.com/user-attachments/assets/da1293e6-d53a-44af-8417-2bdea5eaf54c" />
 
 ---
 
