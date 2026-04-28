@@ -1,6 +1,6 @@
 # Financial Sentiment Analysis + Live Monitoring Pipeline
 
-Does today's financial news sentiment predict stock price movements? I built this to find out — and then turned the findings into a live system.
+Does today's financial news sentiment predict stock price movements? I built this to find out, and then turned the findings into a live system.
 
 Two parts that connect directly: a research notebook that analyses 48k articles, and a pipeline that scores live news using the same models and watches for drift against that same historical data.
 
@@ -29,6 +29,19 @@ Two parts that connect directly: a research notebook that analyses 48k articles,
 
 `notebooks/Analysis.ipynb`
 
+### Main Dataset
+
+**Source:** [FNSPID](https://huggingface.co/datasets/Zihan1004/FNSPID) — 29.6GB, 10M+ financial news articles.
+
+**Why filtered it down:**
+- Full dataset was computationally infeasible on local hardware.
+- Pre-COVID data (pre 2020) introduces heavy downward bias, almost all stocks trending together, which adds noise rather than signal.
+- Fixed on post-COVID (2020–2024) for a cleaner, more stable market period.
+- Even that slice was large, so restricted to the **top 10 stocks by article coverage** across the 5-year window: AMD, BRK, CVX, DIS, GOOG, GS, INTC, NVDA, WMT, XOM
+
+Final dataset: **48,515 articles** — large enough for statistical validity, small enough to run locally. Hosted on Hugging Face:
+[karthikkolli17/financial-news-sentiment](https://huggingface.co/datasets/karthikkolli17/financial-news-sentiment)
+
 I took 48,000+ financial news articles across 10 stocks (AMD, BRK, CVX, DIS, GOOG, GS, INTC, NVDA, WMT, XOM) from 2020–2024 and tested whether sentiment scores can predict next-day stock returns.
 
 Three sentiment models, simple to complex:
@@ -36,7 +49,7 @@ Three sentiment models, simple to complex:
 - **TextBlob** — general purpose lexicon
 - **FinBERT** — BERT model fine-tuned specifically on financial text
 
-Tested against next-day returns to avoid look-ahead bias — same-day returns are contaminated because the market reacts to news within minutes, before end-of-day prices are recorded.
+Tested against next day returns to avoid look ahead bias, same-day returns are contaminated because the market reacts to news within minutes, before end-of-day prices are recorded.
 
 **Results:**
 
@@ -46,7 +59,7 @@ Tested against next-day returns to avoid look-ahead bias — same-day returns ar
 | Logistic Regression | 51.20% | 0.516 |
 | Random Forest | 53.84% | 0.567 |
 
-No meaningful signal across any of the three models. The core reason: the dataset has date-level granularity only — no publish timestamps. Without knowing whether an article dropped before or after market hours, the lag between news and price reaction is too noisy to measure cleanly. By the next day's close, any reaction is already fully priced in. This is consistent with the Efficient Market Hypothesis.
+No meaningful signal across any of the three models. The core reason: the dataset has date level granularity only, no publish timestamps. Without knowing whether an article dropped before or after market hours, the lag between news and price reaction is too noisy to measure cleanly. By the next day's close, any reaction is already fully priced in. This is consistent with the Efficient Market Hypothesis.
 
 <img width="800" alt="ROC curves for Logistic Regression (AUC 0.516) and Random Forest (AUC 0.567) — both barely above the random baseline" src="https://github.com/user-attachments/assets/4bc26473-18e7-4acb-91e8-7d5e1b2eb823" />
 
@@ -64,13 +77,13 @@ No meaningful signal across any of the three models. The core reason: the datase
 
 Built on the same foundation as the research. Same 10 stocks, same 48k dataset used as the historical baseline for drift detection.
 
-The live pipeline uses **VADER + TextBlob** only. FinBERT was evaluated in the notebook but dropped from the live system — the model weights alone are 600MB and the Docker image exceeded Railway's 4.8GB limit. Since FinBERT showed no meaningful accuracy improvement over VADER in the research, the tradeoff wasn't worth it.
+The live pipeline uses **VADER + TextBlob** only. FinBERT was evaluated in the notebook but dropped from the live system, the model weights alone are 600MB and the Docker image exceeded Railway's 4.8GB limit. Since FinBERT showed no meaningful accuracy improvement over VADER in the research, the tradeoff wasn't worth it.
 
 Every hour:
 1. Pulls live headlines from Yahoo Finance RSS
 2. Scores each article with VADER and TextBlob
 3. Saves to database (deduplicates against existing articles by title + date)
-4. Runs an Evidently AI drift report — compares today's sentiment distributions against the 2020–2024 baseline
+4. Runs an Evidently AI drift report, compares today's sentiment distributions against the 2020–2024 baseline
 5. Dashboard updates
 
 The drift monitoring is the direct connection to the research. The notebook defines what "normal" sentiment looks like historically. The pipeline flags when live data stops looking normal.
@@ -101,21 +114,6 @@ The drift monitoring is the direct connection to the research. The notebook defi
 | Dashboard | Streamlit + Plotly |
 | Containerisation | Docker Compose |
 | Deployment | Railway |
-
----
-
-## Dataset
-
-**Source:** [FNSPID](https://huggingface.co/datasets/Zihan1004/FNSPID) — 29.6GB, 10M+ financial news articles.
-
-**Why filtered it down:**
-- Full dataset was computationally infeasible on local hardware.
-- Pre-COVID data (pre 2020) introduces heavy downward bias, almost all stocks trending together, which adds noise rather than signal.
-- Fixed on post-COVID (2020–2024) for a cleaner, more stable market period.
-- Even that slice was large, so restricted to the **top 10 stocks by article coverage** across the 5-year window: AMD, BRK, CVX, DIS, GOOG, GS, INTC, NVDA, WMT, XOM
-
-Final dataset: **48,515 articles** — large enough for statistical validity, small enough to run locally. Hosted on Hugging Face:
-[karthikkolli17/financial-news-sentiment](https://huggingface.co/datasets/karthikkolli17/financial-news-sentiment)
 
 ---
 
